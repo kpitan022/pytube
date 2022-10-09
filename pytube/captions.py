@@ -60,31 +60,28 @@ class Caption:
 
         float_to_srt_time_format(3.89) -> '00:00:03,890'
         """
-        # fraction, whole = math.modf(d)
-        fraction, whole = math.modf(d/1000)
+        fraction, whole = math.modf(d/1000)# fraction, whole = math.modf(d)
         time_fmt = time.strftime("%H:%M:%S,", time.gmtime(whole))
         ms = f"{fraction:.3f}".replace("0.", "")
         return time_fmt + ms
 
     def xml_caption_to_srt(self, xml_captions: str) -> str:
         """Convert xml caption tracks to "SubRip Subtitle (srt)".
-
         :param str xml_captions:
             XML formatted caption tracks.
         """
         segments = []
         root = ElementTree.fromstring(xml_captions)
-        # for i, child in enumerate(list(root)):
-        for i, child in enumerate(list(root.findall('body/p'))):
-            text = child.text or ""
+        for i, child in enumerate(list(root.findall('body/p'))):# for i, child in enumerate(list(root)):
+            text = ''.join(child.itertext()).strip()
+            if not text:
+                continue
             caption = unescape(text.replace("\n", " ").replace("  ", " "),)
             try:
-                # duration = float(child.attrib["dur"])
-                duration = float(child.attrib["d"])
+                duration = float(child.attrib["d"])# duration = float(child.attrib["dur"])
             except KeyError:
                 duration = 0.0
-            # start = float(child.attrib["start"])
-            start = float(child.attrib["t"])
+            start = float(child.attrib["t"])# start = float(child.attrib["start"])
             end = start + duration
             sequence_number = i + 1  # convert from 0-indexed to 1.
             line = "{seq}\n{start} --> {end}\n{text}\n".format(
